@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { FETCH_MENU_URL, CDN_URL } from "../utils/constants";
+import { FETCH_MENU_URL } from "../utils/constants";
 import Shimmer from "./Shimmer";
 
 function RestaurantMenu() {
@@ -9,11 +9,7 @@ function RestaurantMenu() {
   const [menuItems, setMenuItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMenu();
-  }, [resId]);
-
-  async function fetchMenu() {
+  const fetchMenu = useCallback(async () => {
     try {
       const response = await fetch(FETCH_MENU_URL + resId);
       const json = await response.json();
@@ -22,6 +18,7 @@ function RestaurantMenu() {
       const cards = json?.data?.cards || [];
       let restaurantData = null;
       let menuData = [];
+
       // Extract restaurant and menu data from the cards array
       for (let card of cards) {
         if (card?.card?.card?.info?.id === resId) {
@@ -44,7 +41,11 @@ function RestaurantMenu() {
       console.error("Error fetching menu:", error);
       setIsLoading(false);
     }
-  }
+  }, [resId]);
+
+  useEffect(() => {
+    fetchMenu();
+  }, [fetchMenu]);
 
   return (
     <div>
