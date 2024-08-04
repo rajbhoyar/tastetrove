@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import RestaurantCard from "./RestaurantCard";
 import Shimmer from "./Shimmer";
-import restaurants from "../utils/mockData";
+import { Link } from "react-router-dom";
+import { FETCH_RESTAURANTS } from "../utils/constants";
 
 function Body() {
   const [listOfRestaurants, setListOfRestaurants] = useState([]);
@@ -10,13 +11,30 @@ function Body() {
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
-    // Simulating a network request
-    setTimeout(() => {
-      setListOfRestaurants(restaurants);
-      setFilteredRestaurants(restaurants);
-      setIsLoading(false);
-    }, 2000);
+    getRestaurants();
   }, []);
+
+  // Function to fetch restaurants data from the API
+  async function getRestaurants() {
+    try {
+      const response = await fetch(FETCH_RESTAURANTS);
+      const json = await response.json();
+
+      // Extract restaurant data
+      const restaurantData = json?.data?.cards
+        ?.flatMap(
+          (card) => card?.card?.card?.gridElements?.infoWithStyle?.restaurants
+        ) // provides array of restaurants, and combines all of them to one array
+        ?.filter((restaurant) => restaurant !== undefined);
+
+      setListOfRestaurants(restaurantData);
+      setFilteredRestaurants(restaurantData);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching restaurants:", error);
+      setIsLoading(false);
+    }
+  }
 
   return (
     <div className="body">
@@ -54,12 +72,14 @@ function Body() {
       </div>
       <div className="res-container">
         {isLoading
-          ? Array(20).fill(<Shimmer />) // Display 10 shimmer cards
+          ? Array(18).fill(<Shimmer />)
           : filteredRestaurants.map((restaurant) => (
-              <RestaurantCard
+              <Link
+                to={"/restaurants/" + restaurant.info.id}
                 key={restaurant.info.id}
-                resData={restaurant.info}
-              />
+              >
+                <RestaurantCard resData={restaurant.info} />
+              </Link>
             ))}
       </div>
     </div>
