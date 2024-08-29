@@ -1,51 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
-import { FETCH_MENU_URL } from "../utils/constants";
+import useRestaurantMenu from "../utils/useRestaurantMenu"; // Import the custom hook
 import Shimmer from "./Shimmer";
 
 function RestaurantMenu() {
   const { resId } = useParams();
-  const [restaurant, setRestaurant] = useState(null);
-  const [menuItems, setMenuItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchMenu = useCallback(async () => {
-    try {
-      const response = await fetch(FETCH_MENU_URL + resId);
-      const json = await response.json();
-
-      // Extract the correct data
-      const cards = json?.data?.cards || [];
-      let restaurantData = null;
-      let menuData = [];
-
-      // Extract restaurant and menu data from the cards array
-      for (let card of cards) {
-        if (card?.card?.card?.info?.id === resId) {
-          restaurantData = card.card.card.info;
-        }
-
-        const menuItems = card?.groupedCard?.cardGroupMap?.REGULAR?.cards
-          ?.flatMap((c) => c.card?.card?.itemCards || [])
-          ?.map((item) => item?.card?.info);
-
-        if (menuItems && menuItems.length > 0) {
-          menuData = [...menuData, ...menuItems];
-        }
-      }
-
-      setRestaurant(restaurantData);
-      setMenuItems(menuData);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching menu:", error);
-      setIsLoading(false);
-    }
-  }, [resId]);
-
-  useEffect(() => {
-    fetchMenu();
-  }, [fetchMenu]);
+  const { restaurant, menuItems, isLoading } = useRestaurantMenu(resId); // Use the custom hook
 
   return (
     <div>
@@ -57,7 +17,8 @@ function RestaurantMenu() {
             <div>
               <h1>{restaurant.name}</h1>
               <p>
-                {restaurant.cuisines.join(",")} - {restaurant.costForTwoMessage}
+                {restaurant.cuisines.join(", ")} -{" "}
+                {restaurant.costForTwoMessage}
               </p>
             </div>
           ) : (
