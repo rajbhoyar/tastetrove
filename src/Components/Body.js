@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from "react";
-import RestaurantCard from "./RestaurantCard";
+import RestaurantCard, { withPromotedLabel } from "./RestaurantCard";
 import Shimmer from "./Shimmer";
 import { Link } from "react-router-dom";
 import { FETCH_RESTAURANTS } from "../utils/constants";
+import useOnlineStatus from "../utils/useOnlineStatus";
 
 function Body() {
   const [listOfRestaurants, setListOfRestaurants] = useState([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const onlineStatus = useOnlineStatus();
+
+  const RestaurantCardPromoted = withPromotedLabel(RestaurantCard);
 
   useEffect(() => {
     getRestaurants();
-  }, []);
+  }, [onlineStatus]);
 
   // Function to fetch restaurants data from the API
   async function getRestaurants() {
@@ -27,8 +31,21 @@ function Body() {
         ) // provides array of restaurants, and combines all of them to one array
         ?.filter((restaurant) => restaurant !== undefined);
 
-      setListOfRestaurants(restaurantData);
-      setFilteredRestaurants(restaurantData);
+      function getUniqueRestaurants(restaurants) {
+        const seenIds = new Set();
+        return restaurants.filter((restaurant) => {
+          if (seenIds.has(restaurant.info.id)) {
+            return false;
+          }
+          seenIds.add(restaurant.info.id);
+          return true;
+        });
+      }
+
+      const uniqueRestaurants = getUniqueRestaurants(restaurantData);
+      console.log(uniqueRestaurants);
+      setListOfRestaurants(uniqueRestaurants);
+      setFilteredRestaurants(uniqueRestaurants);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching restaurants:", error);
@@ -36,18 +53,25 @@ function Body() {
     }
   }
 
+  if (onlineStatus === false)
+    return (
+      <h1>
+        Looks like you're offline!! Please check your internet connection.
+      </h1>
+    );
+
   return (
     <div className="body">
-      <div className="filter">
-        <div className="search">
+      <div className="filter flex">
+        <div className="search m-4 p-4">
           <input
             type="text"
-            className="search-box"
+            className="border  border-solid border-black"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
           <button
-            className="search-btn"
+            className="px-4 py-2 m-4 bg-green-100 rounded-lg"
             onClick={() => {
               const filteredRes = listOfRestaurants.filter((res) =>
                 res.info.name.toLowerCase().includes(searchText.toLowerCase())
@@ -58,27 +82,35 @@ function Body() {
             Search
           </button>
         </div>
-        <button
-          className="filter-btn"
-          onClick={() => {
-            const filteredList = filteredRestaurants.filter(
-              (res) => res.info.avgRating > 4.3
-            );
-            setFilteredRestaurants(filteredList);
-          }}
-        >
-          Top Rated Restaurants
-        </button>
+        <div className="search m-4 p-4 flex items-center">
+          <button
+            className="px-4 py-2 bg-gray-100 rounded-lg"
+            onClick={() => {
+              const filteredList = filteredRestaurants.filter(
+                (res) => res.info.avgRating > 4.3
+              );
+              setFilteredRestaurants(filteredList);
+            }}
+          >
+            Top Rated Restaurants
+          </button>
+        </div>
       </div>
-      <div className="res-container">
+      <div className="flex flex-wrap">
         {isLoading
-          ? Array(18).fill(<Shimmer />)
-          : filteredRestaurants.map((restaurant) => (
+          ? Array.from({ length: 18 }, (_, index) => (
+              <Shimmer key={`shimmer-${index}`} />
+            ))
+          : filteredRestaurants.map((restaurant, index) => (
               <Link
                 to={"/restaurants/" + restaurant.info.id}
-                key={restaurant.info.id}
+                key={`${restaurant.info.id}-${index}`} // Combine ID with index to ensure uniqueness
               >
-                <RestaurantCard resData={restaurant.info} />
+                {restaurant.info.avgRating > 4.5 ? (
+                  <RestaurantCardPromoted resData={restaurant.info} />
+                ) : (
+                  <RestaurantCard resData={restaurant.info} />
+                )}
               </Link>
             ))}
       </div>
