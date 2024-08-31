@@ -43,7 +43,6 @@ function Body() {
       }
 
       const uniqueRestaurants = getUniqueRestaurants(restaurantData);
-      console.log(uniqueRestaurants);
       setListOfRestaurants(uniqueRestaurants);
       setFilteredRestaurants(uniqueRestaurants);
       setIsLoading(false);
