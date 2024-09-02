@@ -10,7 +10,6 @@ import {
   HiInformationCircle,
   HiMail,
   HiShoppingCart,
-  HiUser,
 } from "react-icons/hi";
 import { AiOutlineUser } from "react-icons/ai";
 
@@ -26,6 +25,12 @@ function Header() {
     setLoginBtn((prev) => (prev === "Login" ? "Logout" : "Login"));
     // Here you can add logic for actual login/logout if needed
   };
+
+  // Calculate total quantity of items in the cart
+  const totalQuantity = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
 
   return (
     <header className="bg-white border-b-2 shadow-md h-20">
@@ -70,7 +75,7 @@ function Header() {
             <li className="flex items-center text-gray-700 hover:text-gray-900">
               <Link to="/cart" className="flex items-center">
                 <HiShoppingCart className="mr-2" />
-                Cart ({cartItems.length})
+                Cart ({totalQuantity})
               </Link>
             </li>
           </ul>
