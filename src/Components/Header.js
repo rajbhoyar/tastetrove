@@ -15,7 +15,7 @@ import { AiOutlineUser } from "react-icons/ai";
 
 function Header() {
   const [loginBtn, setLoginBtn] = useState("Login");
-  const [location, setLocation] = useState("Bengaluru"); // Initial location
+  const [location] = useState("Bengaluru"); // Initial location
   const onlineStatus = useOnlineStatus();
   const { loggedInUser } = useContext(UserContext);
   const cartItems = useSelector((store) => store.cart.items);
@@ -90,8 +90,10 @@ function Header() {
             </button>
             {loggedInUser && (
               <div className="ml-4 flex items-center">
-                <AiOutlineUser className="w-8 h-8 text-gray-700" />
-                <span className="ml-2 font-bold">{loggedInUser}</span>
+                <Link to="/profile" className="flex items-center">
+                  <AiOutlineUser className="w-8 h-8 text-gray-700" />
+                  <span className="ml-2 font-bold">{loggedInUser}</span>
+                </Link>
               </div>
             )}
           </div>

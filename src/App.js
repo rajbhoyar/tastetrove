@@ -10,6 +10,7 @@ import UserContext from "./utils/UserContext";
 import { Provider } from "react-redux";
 import appStore from "./utils/appStore";
 import { useEffect, useState } from "react";
+import Profile from "./Components/Profile";
 
 // Custom hook for user context initialization
 const useUserName = () => {
@@ -43,6 +44,7 @@ function App() {
                   element={<RestaurantMenu />}
                 />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="*" element={<ErrorPage />} />
               </Routes>
             </main>
