@@ -1,6 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 
 function ContactUs() {
+  const [formStatus, setFormStatus] = useState(null); // To track form submission status
+  const [isSubmitting, setIsSubmitting] = useState(false); // To track submission in progress
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Simulate form submission process
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setFormStatus("Your message has been sent successfully!");
+
+      // Clear form fields if needed
+      e.target.reset();
+    }, 1000); // Simulate a network request with a timeout
+  };
+
   return (
     <div className="bg-gray-100 min-h-screen">
       <header className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-center py-20">
@@ -44,7 +61,7 @@ function ContactUs() {
             <h3 className="text-2xl font-bold text-gray-800 mb-4">
               Send Us a Message
             </h3>
-            <form action="#" method="POST" className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label
                   htmlFor="name"
@@ -93,10 +110,14 @@ function ContactUs() {
               <button
                 type="submit"
                 className="w-full py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition duration-300"
+                disabled={isSubmitting}
               >
-                Send Message
+                {isSubmitting ? "Sending..." : "Send Message"}
               </button>
             </form>
+            {formStatus && (
+              <p className="mt-4 text-green-600 font-semibold">{formStatus}</p>
+            )}
           </div>
         </section>
       </main>
