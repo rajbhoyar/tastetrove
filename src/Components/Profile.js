@@ -1,158 +1,158 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { updateUserProfile } from "../utils/userSlice"; // Assuming you have this action
-import { AiOutlineUser } from "react-icons/ai";
-import { FaSave, FaEdit } from "react-icons/fa";
 import {
-  HiOutlinePhone,
-  HiOutlineLocationMarker,
-  HiOutlineMail,
-} from "react-icons/hi";
+  FaUser,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaPhone,
+  FaPencilAlt,
+} from "react-icons/fa";
+import { updateUserProfile } from "../utils/userSlice";
 
 function Profile() {
+  const profile = useSelector((store) => store.user.profile);
   const dispatch = useDispatch();
-  const userProfile = useSelector((store) => store.user.profile);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: "",
-    email: "",
-    address: "",
-    phone: "",
-  });
+  const [editDetails, setEditDetails] = useState(profile);
 
-  useEffect(() => {
-    if (userProfile) {
-      setProfileData(userProfile);
-    }
-  }, [userProfile]);
+  if (!profile) {
+    return <div className="text-center p-4">Loading...</div>; // Handle the case when data is not yet available
+  }
 
-  const handleChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setProfileData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setEditDetails((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = () => {
-    dispatch(updateUserProfile(profileData));
+    dispatch(updateUserProfile(editDetails));
     setIsEditing(false);
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen py-12 px-6">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden relative">
-        <header className="bg-blue-800 text-white p-6 rounded-t-lg">
-          <h1 className="text-4xl font-extrabold">Profile</h1>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
+      <div className="bg-white shadow-lg rounded-lg max-w-md w-full p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center text-white text-4xl font-semibold">
+            {profile.name ? profile.name.charAt(0).toUpperCase() : "N/A"}
+          </div>
           <button
-            className={`absolute top-6 right-6 px-4 py-2 rounded-lg shadow-md ${
-              isEditing ? "bg-gray-600 text-white" : "bg-gray-300 text-gray-700"
-            } hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-400 flex items-center`}
-            onClick={() => setIsEditing(!isEditing)}
+            className="bg-blue-500 text-white p-2 rounded-md shadow-md flex items-center"
+            onClick={() => setIsEditing(true)}
           >
-            <FaEdit className="mr-2" />
-            {isEditing ? "Cancel" : "Edit"}
+            <FaPencilAlt className="mr-2" />
+            Edit
           </button>
-        </header>
-        <div className="p-8">
-          <div className="flex items-start mb-8">
-            <AiOutlineUser className="w-20 h-20 text-blue-800 mr-6" />
-            {isEditing ? (
-              <div className="flex-1 space-y-6">
-                <div className="space-y-4">
-                  <div className="flex flex-col">
-                    <label className="text-gray-600 font-medium mb-1">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={profileData.name}
-                      onChange={handleChange}
-                      className="p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="text-gray-600 font-medium mb-1">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={profileData.email}
-                      onChange={handleChange}
-                      className="p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="text-gray-600 font-medium mb-1">
-                      Address
-                    </label>
-                    <textarea
-                      name="address"
-                      value={profileData.address}
-                      onChange={handleChange}
-                      className="p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="text-gray-600 font-medium mb-1">
-                      Phone
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={profileData.phone}
-                      onChange={handleChange}
-                      className="p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
+        </div>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
+          User Profile
+        </h2>
+        <div className="space-y-4">
+          <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+            <FaUser className="text-blue-500 text-2xl mr-4" />
+            <div>
+              <h3 className="text-gray-600 text-lg font-medium">Name</h3>
+              <p className="text-gray-800 text-base">{profile.name || "N/A"}</p>
+            </div>
+          </div>
+          <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+            <FaEnvelope className="text-blue-500 text-2xl mr-4" />
+            <div>
+              <h3 className="text-gray-600 text-lg font-medium">Email</h3>
+              <p className="text-gray-800 text-base">
+                {profile.email || "N/A"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+            <FaMapMarkerAlt className="text-blue-500 text-2xl mr-4" />
+            <div>
+              <h3 className="text-gray-600 text-lg font-medium">Address</h3>
+              <p className="text-gray-800 text-base">
+                {profile.address || "N/A"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+            <FaPhone className="text-blue-500 text-2xl mr-4" />
+            <div>
+              <h3 className="text-gray-600 text-lg font-medium">Phone</h3>
+              <p className="text-gray-800 text-base">
+                {profile.phone || "N/A"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal for Editing */}
+        {isEditing && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white shadow-lg rounded-lg p-6 max-w-sm w-full">
+              <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
+              <label className="block mb-4">
+                <span className="text-gray-700">Name</span>
+                <input
+                  type="text"
+                  name="name"
+                  value={editDetails.name}
+                  onChange={handleInputChange}
+                  className="block w-full mt-1 p-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </label>
+              <label className="block mb-4">
+                <span className="text-gray-700">Email</span>
+                <input
+                  type="email"
+                  name="email"
+                  value={editDetails.email}
+                  onChange={handleInputChange}
+                  className="block w-full mt-1 p-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </label>
+              <label className="block mb-4">
+                <span className="text-gray-700">Address</span>
+                <input
+                  type="text"
+                  name="address"
+                  value={editDetails.address}
+                  onChange={handleInputChange}
+                  className="block w-full mt-1 p-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </label>
+              <label className="block mb-4">
+                <span className="text-gray-700">Phone</span>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={editDetails.phone}
+                  onChange={handleInputChange}
+                  className="block w-full mt-1 p-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </label>
+              <div className="flex justify-end space-x-4">
                 <button
-                  className="bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 flex items-center"
-                  onClick={handleSave}
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="bg-gray-400 text-white py-2 px-4 rounded-md"
                 >
-                  <FaSave className="mr-2" />
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="bg-blue-500 text-white py-2 px-4 rounded-md"
+                >
                   Save
                 </button>
               </div>
-            ) : (
-              <div className="flex-1 space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <AiOutlineUser className="w-6 h-6 text-gray-600 mr-2" />
-                    <p className="text-lg font-semibold">
-                      <span className="text-gray-700">Name:</span>{" "}
-                      {userProfile?.name || "N/A"}
-                    </p>
-                  </div>
-                  <div className="flex items-center">
-                    <HiOutlineMail className="w-6 h-6 text-gray-600 mr-2" />
-                    <p className="text-lg font-semibold">
-                      <span className="text-gray-700">Email:</span>{" "}
-                      {userProfile?.email || "N/A"}
-                    </p>
-                  </div>
-                  <div className="flex items-center">
-                    <HiOutlineLocationMarker className="w-6 h-6 text-gray-600 mr-2" />
-                    <p className="text-lg font-semibold">
-                      <span className="text-gray-700">Address:</span>{" "}
-                      {userProfile?.address || "N/A"}
-                    </p>
-                  </div>
-                  <div className="flex items-center">
-                    <HiOutlinePhone className="w-6 h-6 text-gray-600 mr-2" />
-                    <p className="text-lg font-semibold">
-                      <span className="text-gray-700">Phone:</span>{" "}
-                      {userProfile?.phone || "N/A"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

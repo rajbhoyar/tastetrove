@@ -1,10 +1,11 @@
-import React, { useState, useContext } from "react";
+// src/components/Header.js
+import React from "react";
 import { Link } from "react-router-dom";
 import logo from "../Images/logo.png";
 import "../index.css";
 import useOnlineStatus from "../utils/useOnlineStatus";
-import UserContext from "../utils/UserContext";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutUser } from "../utils/userSlice";
 import {
   HiHome,
   HiInformationCircle,
@@ -14,16 +15,14 @@ import {
 import { AiOutlineUser } from "react-icons/ai";
 
 function Header() {
-  const [loginBtn, setLoginBtn] = useState("Login");
-  const [location] = useState("Bengaluru"); // Initial location
-  const onlineStatus = useOnlineStatus();
-  const { loggedInUser } = useContext(UserContext);
+  const dispatch = useDispatch();
+  const loggedInUser = useSelector((store) => store.user.loggedInUser);
   const cartItems = useSelector((store) => store.cart.items);
 
-  const handleLoginClick = () => {
-    // Toggle login/logout state
-    setLoginBtn((prev) => (prev === "Login" ? "Logout" : "Login"));
-    // Here you can add logic for actual login/logout if needed
+  const onlineStatus = useOnlineStatus();
+
+  const handleLogoutClick = () => {
+    dispatch(logoutUser());
   };
 
   // Calculate total quantity of items in the cart
@@ -44,7 +43,7 @@ function Header() {
             to="/location"
             className="ml-2 text-blue-500 hover:text-blue-700 hidden md:block"
           >
-            {location}
+            Bengaluru
           </Link>
         </div>
 
@@ -82,17 +81,26 @@ function Header() {
 
           {/* Login/Logout Button and User Avatar */}
           <div className="flex items-center">
-            <button
-              className="bg-blue-500 text-white py-1 px-4 rounded-md text-sm"
-              onClick={handleLoginClick}
-            >
-              {loginBtn}
-            </button>
-            {loggedInUser && (
+            {!loggedInUser ? (
+              <Link
+                to="/login"
+                className="bg-blue-500 text-white py-1 px-4 rounded-md text-sm"
+              >
+                Login
+              </Link>
+            ) : (
               <div className="ml-4 flex items-center">
                 <Link to="/profile" className="flex items-center">
                   <AiOutlineUser className="w-8 h-8 text-gray-700" />
                   <span className="ml-2 font-bold">{loggedInUser}</span>
+                </Link>
+                <Link to="/" className="flex items-center">
+                  <button
+                    className="ml-4 bg-red-500 text-white py-1 px-4 rounded-md text-sm"
+                    onClick={handleLogoutClick}
+                  >
+                    Logout
+                  </button>
                 </Link>
               </div>
             )}
