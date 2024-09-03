@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCart, addItem, removeItem } from "../utils/cartSlice";
 import { CDN_URL } from "../utils/constants";
+import { Link, useNavigate } from "react-router-dom";
 
 function Cart() {
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const cartItems = useSelector((store) => store.cart.items);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleClearCart = () => {
     dispatch(clearCart());
@@ -25,6 +29,20 @@ function Cart() {
   const totalPrice = cartItems.reduce((total, item) => {
     return total + (item.price / 100) * item.quantity;
   }, 0);
+
+  const handleCheckout = () => {
+    setIsProcessingPayment(true);
+    // Simulate payment processing delay
+    setTimeout(() => {
+      setIsProcessingPayment(false);
+      setOrderPlaced(true);
+      // Clear cart and redirect after order is placed
+      dispatch(clearCart());
+      setTimeout(() => {
+        navigate("/");
+      }, 2000); // Delay for the message to be visible
+    }, 3000); // Simulate payment processing time
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen py-8 px-4">
@@ -90,6 +108,27 @@ function Cart() {
                 <span>Total Price:</span>
                 <span>₹ {totalPrice.toFixed(2)}</span>
               </div>
+              <button
+                onClick={handleCheckout}
+                className="w-full py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition duration-300"
+              >
+                Checkout
+              </button>
+              {isProcessingPayment && (
+                <div className="mt-4 text-center text-gray-600">
+                  Processing your payment...
+                </div>
+              )}
+              {orderPlaced && !isProcessingPayment && (
+                <div className="mt-4 text-center text-green-600 font-bold">
+                  Order placed successfully! Redirecting to{" "}
+                  <span className="font-bold">
+                    <Link to="/" className="text-blue-600 underline">
+                      Homepage
+                    </Link>
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
